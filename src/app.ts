@@ -2,14 +2,8 @@ import express, { type Express, type Request, type Response } from 'express';
 
 import { RepositoryScoreController } from './controllers/repository-score.controller';
 import { ErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
-import {
-  RedisCacheRepository,
-  type CacheRepository
-} from './repositories/cache.repository';
-import {
-  GitHubRestRepository,
-  type GitHubRepositoryRepository
-} from './repositories/github-repository.repository';
+import { RedisCacheRepository, type CacheRepository} from './repositories/cache.repository';
+import { GitHubRestRepository, type GitHubRepositoryRepository} from './repositories/github-repository.repository';
 import { RepositoryScoreService } from './services/repository-score.service';
 
 type AppDependencies = {
@@ -37,17 +31,10 @@ export class App {
 
     app.use(express.json());
 
-    const githubRepositoryRepository =
-      this.dependencies.githubRepositoryRepository ??
-      new GitHubRestRepository({ token: process.env.GITHUB_TOKEN });
-    const cacheRepository =
-      this.dependencies.cacheRepository ?? this.createCacheRepository();
-    const repositoryScoreService =
-      this.dependencies.repositoryScoreService ??
-      new RepositoryScoreService(githubRepositoryRepository, cacheRepository);
-    const repositoryScoreController = new RepositoryScoreController(
-      repositoryScoreService
-    );
+    const githubRepositoryRepository = this.dependencies.githubRepositoryRepository ?? new GitHubRestRepository({ token: process.env.GITHUB_TOKEN });
+    const cacheRepository = this.dependencies.cacheRepository ?? this.createCacheRepository();
+    const repositoryScoreService = this.dependencies.repositoryScoreService ?? new RepositoryScoreService(githubRepositoryRepository, cacheRepository);
+    const repositoryScoreController = new RepositoryScoreController( repositoryScoreService);
     const errorHandler = new ErrorHandlerMiddleware();
 
     app.get('/health', (req: Request, res: Response) => {

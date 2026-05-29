@@ -23,7 +23,6 @@ export class RedisCacheRepository implements CacheRepository {
 
   public async get<T>(key: string): Promise<T | null> {
     await this.connect();
-
     const value = await this.client.get(key);
 
     if (!value) {
@@ -35,7 +34,6 @@ export class RedisCacheRepository implements CacheRepository {
 
   public async set<T>(key: string, value: T): Promise<void> {
     await this.connect();
-
     const payload = JSON.stringify(value);
 
     if (this.options.ttlSeconds) {
@@ -52,7 +50,6 @@ export class RedisCacheRepository implements CacheRepository {
     }
 
     this.connectPromise ??= this.client.connect().then(() => undefined);
-
     await this.connectPromise;
   }
 }

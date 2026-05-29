@@ -8,10 +8,8 @@ import type { CacheRepository } from '../repositories/cache.repository';
 import type { GitHubRepositoryRepository } from '../repositories/github-repository.repository';
 import {
   calculateRecencyScore,
-  isIsoDate,
   toScore
 } from '../utils/helpers.utils';
-import { BadRequestError } from '../utils/http-errors';
 
 type PopularityWeights = {
   stars: number;
@@ -34,8 +32,6 @@ export class RepositoryScoreService {
   public async listScoredRepositories(
     criteria: RepositorySearchCriteria
   ): Promise<ScoredRepositoryResponse> {
-    this.validateCriteria(criteria);
-
     const cacheKey = this.buildCacheKey(criteria);
     const cachedResponse =
       await this.cacheRepository.get<ScoredRepositoryResponse>(cacheKey);
@@ -53,28 +49,6 @@ export class RepositoryScoreService {
     await this.cacheRepository.set(cacheKey, response);
 
     return response;
-  }
-
-  private validateCriteria(criteria: RepositorySearchCriteria): void {
-    if (!criteria.language.trim()) {
-      throw new BadRequestError('Language is required');
-    }
-
-    if (!isIsoDate(criteria.createdAfter)) {
-      throw new BadRequestError('createdAfter must be an ISO date');
-    }
-
-    if (
-      !Number.isInteger(criteria.limit) ||
-      criteria.limit < 1 ||
-      criteria.limit > 100
-    ) {
-      throw new BadRequestError('Limit must be an integer between 1 and 100');
-    }
-
-    if (!Number.isInteger(criteria.offset) || criteria.offset < 0) {
-      throw new BadRequestError('Offset must be a non-negative integer');
-    }
   }
 
   private buildCacheKey(criteria: RepositorySearchCriteria): string {

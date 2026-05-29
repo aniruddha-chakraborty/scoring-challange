@@ -7,7 +7,6 @@ import type {
 } from '../../src/models/github-repository.model';
 import type { CacheRepository } from '../../src/repositories/cache.repository';
 import type { GitHubRepositoryRepository } from '../../src/repositories/github-repository.repository';
-import { BadRequestError } from '../../src/utils/http-errors';
 import { RepositoryScoreService } from '../../src/services/repository-score.service';
 
 describe('RepositoryScoreService', () => {
@@ -30,40 +29,6 @@ describe('RepositoryScoreService', () => {
     assert.equal(response.data.length, 1);
     assert.equal(response.data[0].fullName, 'example/api');
     assert.equal(response.data[0].popularityScore, 100);
-  });
-
-  it('rejects missing language', async () => {
-    const service = new RepositoryScoreService(
-      new StubGitHubRepositoryRepository([]),
-      new StubCacheRepository()
-    );
-
-    await assert.rejects(
-      service.listScoredRepositories({
-        language: '',
-        createdAfter: '2024-01-01',
-        limit: 10,
-        offset: 0
-      }),
-      BadRequestError
-    );
-  });
-
-  it('rejects negative offsets', async () => {
-    const service = new RepositoryScoreService(
-      new StubGitHubRepositoryRepository([]),
-      new StubCacheRepository()
-    );
-
-    await assert.rejects(
-      service.listScoredRepositories({
-        language: 'TypeScript',
-        createdAfter: '2024-01-01',
-        limit: 10,
-        offset: -1
-      }),
-      BadRequestError
-    );
   });
 
   it('sorts repositories by weighted popularity score', async () => {
