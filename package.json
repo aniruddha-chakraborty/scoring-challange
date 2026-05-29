@@ -1,0 +1,26 @@
+{
+  "name": "ranking-service",
+  "version": "1.0.0",
+  "description": "Backend service for scoring GitHub repositories by popularity.",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run clean:test && tsc -p tsconfig.test.json && node --test dist-test/tests/*.test.js dist-test/tests/repositories/*.test.js dist-test/tests/services/*.test.js dist-test/tests/utils/*.test.js",
+    "clean:test": "rm -rf dist-test",
+    "start": "node dist/app.js",
+    "dev": "tsx watch src/app.ts"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "redis": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.10",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
