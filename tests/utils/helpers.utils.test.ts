@@ -1,6 +1,3 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
-
 import {
   calculateRecencyScore,
   isIsoDate,
@@ -9,31 +6,29 @@ import {
 
 describe('helpers utils', () => {
   it('validates ISO date strings', () => {
-    assert.equal(isIsoDate('2024-01-01'), true);
-    assert.equal(isIsoDate('2024-1-1'), false);
-    assert.equal(isIsoDate('not-a-date'), false);
+    expect(isIsoDate('2024-01-01')).toBe(true);
+    expect(isIsoDate('2024-1-1')).toBe(false);
+    expect(isIsoDate('not-a-date')).toBe(false);
   });
 
   it('calculates recency score with a one year decay', () => {
-    assert.equal(
+    expect(
       calculateRecencyScore(
         '2026-05-28T00:00:00Z',
         new Date('2026-05-28T00:00:00Z')
-      ),
-      1
-    );
-    assert.equal(
+      )
+    ).toBe(1);
+    expect(
       calculateRecencyScore(
         '2025-05-28T00:00:00Z',
         new Date('2026-05-28T00:00:00Z')
-      ),
-      0
-    );
+      )
+    ).toBe(0);
   });
 
   it('converts a normalized value to a whole-number score', () => {
-    assert.equal(toScore(0), 0);
-    assert.equal(toScore(0.555), 56);
-    assert.equal(toScore(1), 100);
+    expect(toScore(0)).toBe(0);
+    expect(toScore(0.555)).toBe(56);
+    expect(toScore(1)).toBe(100);
   });
 });

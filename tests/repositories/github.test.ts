@@ -1,6 +1,3 @@
-import assert from 'node:assert/strict';
-import { afterEach, beforeEach, describe, it } from 'node:test';
-
 import {
   createGitHubRepository,
   GitHubRestRepository
@@ -23,7 +20,7 @@ describe('GitHubRestRepository', () => {
   it('creates a GitHub repository from the factory', () => {
     const repository = createGitHubRepository();
 
-    assert.ok(repository instanceof GitHubRestRepository);
+    expect(repository).toBeInstanceOf(GitHubRestRepository);
   });
 
   it('converts offset and limit into GitHub page pagination', async () => {
@@ -52,8 +49,8 @@ describe('GitHubRestRepository', () => {
 
     const url = new URL(requestedUrl);
 
-    assert.equal(url.searchParams.get('per_page'), '30');
-    assert.equal(url.searchParams.get('page'), '3');
+    expect(url.searchParams.get('per_page')).toBe('30');
+    expect(url.searchParams.get('page')).toBe('3');
   });
 
   it('maps valid GitHub repository data', async () => {
@@ -87,9 +84,9 @@ describe('GitHubRestRepository', () => {
       offset: 0
     });
 
-    assert.equal(results[0].fullName, 'example/api');
-    assert.equal(results[0].stars, 50);
-    assert.equal(results[0].forks, 10);
+    expect(results[0].fullName).toBe('example/api');
+    expect(results[0].stars).toBe(50);
+    expect(results[0].forks).toBe(10);
   });
 
   it('rejects GitHub repository data with invalid field types', async () => {
@@ -116,15 +113,14 @@ describe('GitHubRestRepository', () => {
 
     const repository = new GitHubRestRepository();
 
-    await assert.rejects(
+    await expect(
       repository.searchRepositories({
         language: 'TypeScript',
         createdAfter: '2024-01-01',
         limit: 10,
         offset: 0
-      }),
-      GitHubApiError
-    );
+      })
+    ).rejects.toThrow(GitHubApiError);
   });
 
   it('rejects invalid nullable GitHub repository fields', async () => {
@@ -139,15 +135,14 @@ describe('GitHubRestRepository', () => {
           { status: 200 }
         );
 
-      await assert.rejects(
+      await expect(
         repository.searchRepositories({
           language: 'TypeScript',
           createdAfter: '2024-01-01',
           limit: 10,
           offset: 0
-        }),
-        GitHubApiError
-      );
+        })
+      ).rejects.toThrow(GitHubApiError);
     }
   });
 
@@ -157,15 +152,14 @@ describe('GitHubRestRepository', () => {
 
     const repository = new GitHubRestRepository();
 
-    await assert.rejects(
+    await expect(
       repository.searchRepositories({
         language: 'TypeScript',
         createdAfter: '2024-01-01',
         limit: 10,
         offset: 0
-      }),
-      GitHubApiError
-    );
+      })
+    ).rejects.toThrow(GitHubApiError);
   });
 
   it('rejects GitHub responses without an items array', async () => {
@@ -174,15 +168,14 @@ describe('GitHubRestRepository', () => {
 
     const repository = new GitHubRestRepository();
 
-    await assert.rejects(
+    await expect(
       repository.searchRepositories({
         language: 'TypeScript',
         createdAfter: '2024-01-01',
         limit: 10,
         offset: 0
-      }),
-      GitHubApiError
-    );
+      })
+    ).rejects.toThrow(GitHubApiError);
   });
 
   it('rejects failed GitHub responses before parsing the response body', async () => {
@@ -193,15 +186,14 @@ describe('GitHubRestRepository', () => {
 
     const repository = new GitHubRestRepository();
 
-    await assert.rejects(
+    await expect(
       repository.searchRepositories({
         language: 'TypeScript',
         createdAfter: '2024-01-01',
         limit: 10,
         offset: 0
-      }),
-      /GitHub search failed with status 403/
-    );
+      })
+    ).rejects.toThrow(/GitHub search failed with status 403/);
   });
 });
 

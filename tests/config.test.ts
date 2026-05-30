@@ -1,6 +1,3 @@
-import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
-
 import { config } from '../src/config';
 
 const envKeys = [
@@ -23,10 +20,10 @@ describe('config', () => {
       delete process.env[key];
     });
 
-    assert.equal(config.port, 3000);
-    assert.equal(config.githubToken, undefined);
-    assert.equal(config.redisUrl, undefined);
-    assert.equal(config.cacheTtlSeconds, 300);
+    expect(config.port).toBe(3000);
+    expect(config.githubToken).toBeUndefined();
+    expect(config.redisUrl).toBeUndefined();
+    expect(config.cacheTtlSeconds).toBe(300);
   });
 
   it('returns values from environment variables', () => {
@@ -35,10 +32,10 @@ describe('config', () => {
     process.env.REDIS_URL = 'redis://localhost:6379';
     process.env.CACHE_TTL_SECONDS = '120';
 
-    assert.equal(config.port, '4000');
-    assert.equal(config.githubToken, 'github-token');
-    assert.equal(config.redisUrl, 'redis://localhost:6379');
-    assert.equal(config.cacheTtlSeconds, 120);
+    expect(config.port).toBe('4000');
+    expect(config.githubToken).toBe('github-token');
+    expect(config.redisUrl).toBe('redis://localhost:6379');
+    expect(config.cacheTtlSeconds).toBe(120);
   });
 });
 

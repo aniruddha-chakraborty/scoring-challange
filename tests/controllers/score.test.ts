@@ -1,5 +1,3 @@
-import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
 import type { NextFunction, Request, Response } from 'express';
 
 import type {
@@ -27,7 +25,7 @@ describe('RepositoryScoreController', () => {
 
     const controller = createRepositoryScoreController();
 
-    assert.ok(controller instanceof RepositoryScoreController);
+    expect(controller).toBeInstanceOf(RepositoryScoreController);
   });
 
   it('validates query params before calling the service', async () => {
@@ -44,9 +42,9 @@ describe('RepositoryScoreController', () => {
       offset: '0'
     }, createResponse(), next);
 
-    assert.equal(service.calls.length, 0);
-    assert.ok(next.error instanceof BadRequestError);
-    assert.equal(next.error.message, 'Language is required');
+    expect(service.calls).toHaveLength(0);
+    expect(next.error).toBeInstanceOf(BadRequestError);
+    expect((next.error as Error).message).toBe('Language is required');
   });
 
   it('passes parsed search criteria to the service', async () => {
@@ -64,14 +62,14 @@ describe('RepositoryScoreController', () => {
       offset: '5'
     }, response, next);
 
-    assert.equal(next.error, undefined);
-    assert.deepEqual(service.calls[0], {
+    expect(next.error).toBeUndefined();
+    expect(service.calls[0]).toEqual({
       language: 'Go',
       createdAfter: '2024-06-01',
       limit: 10,
       offset: 5
     });
-    assert.deepEqual(response.body, { data: [] });
+    expect(response.body).toEqual({ data: [] });
   });
 
   it('uses default pagination values when limit and offset are omitted', async () => {
@@ -87,8 +85,8 @@ describe('RepositoryScoreController', () => {
       createdAfter: '2024-06-01'
     }, response, next);
 
-    assert.equal(next.error, undefined);
-    assert.deepEqual(service.calls[0], {
+    expect(next.error).toBeUndefined();
+    expect(service.calls[0]).toEqual({
       language: 'Rust',
       createdAfter: '2024-06-01',
       limit: 30,
@@ -117,15 +115,13 @@ describe('RepositoryScoreController', () => {
       offset: '0'
     }, createResponse(), invalidLimitNext);
 
-    assert.equal(service.calls.length, 0);
-    assert.ok(invalidDateNext.error instanceof BadRequestError);
-    assert.equal(
-      invalidDateNext.error.message,
+    expect(service.calls).toHaveLength(0);
+    expect(invalidDateNext.error).toBeInstanceOf(BadRequestError);
+    expect((invalidDateNext.error as Error).message).toBe(
       'createdAfter must be an ISO date'
     );
-    assert.ok(invalidLimitNext.error instanceof BadRequestError);
-    assert.equal(
-      invalidLimitNext.error.message,
+    expect(invalidLimitNext.error).toBeInstanceOf(BadRequestError);
+    expect((invalidLimitNext.error as Error).message).toBe(
       'Limit must be an integer between 1 and 100'
     );
   });
@@ -151,15 +147,13 @@ describe('RepositoryScoreController', () => {
       offset: 'abc'
     }, createResponse(), invalidOffsetNext);
 
-    assert.equal(service.calls.length, 0);
-    assert.ok(invalidLimitNext.error instanceof BadRequestError);
-    assert.equal(
-      invalidLimitNext.error.message,
+    expect(service.calls).toHaveLength(0);
+    expect(invalidLimitNext.error).toBeInstanceOf(BadRequestError);
+    expect((invalidLimitNext.error as Error).message).toBe(
       'Limit must be an integer between 1 and 100'
     );
-    assert.ok(invalidOffsetNext.error instanceof BadRequestError);
-    assert.equal(
-      invalidOffsetNext.error.message,
+    expect(invalidOffsetNext.error).toBeInstanceOf(BadRequestError);
+    expect((invalidOffsetNext.error as Error).message).toBe(
       'Offset must be a non-negative integer'
     );
   });
@@ -178,10 +172,9 @@ describe('RepositoryScoreController', () => {
       offset: '0'
     }, createResponse(), next);
 
-    assert.equal(service.calls.length, 0);
-    assert.ok(next.error instanceof BadRequestError);
-    assert.equal(
-      next.error.message,
+    expect(service.calls).toHaveLength(0);
+    expect(next.error).toBeInstanceOf(BadRequestError);
+    expect((next.error as Error).message).toBe(
       'Limit must be an integer between 1 and 100'
     );
   });
@@ -200,9 +193,11 @@ describe('RepositoryScoreController', () => {
       offset: '-1'
     }, createResponse(), next);
 
-    assert.equal(service.calls.length, 0);
-    assert.ok(next.error instanceof BadRequestError);
-    assert.equal(next.error.message, 'Offset must be a non-negative integer');
+    expect(service.calls).toHaveLength(0);
+    expect(next.error).toBeInstanceOf(BadRequestError);
+    expect((next.error as Error).message).toBe(
+      'Offset must be a non-negative integer'
+    );
   });
 });
 

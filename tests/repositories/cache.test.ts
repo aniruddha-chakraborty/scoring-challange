@@ -1,6 +1,4 @@
-import assert from 'node:assert/strict';
 import { createConnection } from 'node:net';
-import { afterEach, describe, it } from 'node:test';
 
 import {
   createCacheRepository,
@@ -8,6 +6,9 @@ import {
   RedisCacheRepository
 } from '../../src/repositories/cache';
 import { mockConfig, restoreConfig } from '../helpers/config.mock';
+
+const redisUrl = process.env.REDIS_URL;
+const redisIntegrationTest = redisUrl ? it : it.skip;
 
 describe('createCacheRepository', () => {
   afterEach(() => {
@@ -17,7 +18,7 @@ describe('createCacheRepository', () => {
   it('requires REDIS_URL', () => {
     mockConfig({ redisUrl: undefined });
 
-    assert.throws(() => createCacheRepository(), /REDIS_URL is required/);
+    expect(() => createCacheRepository()).toThrow(/REDIS_URL is required/);
   });
 
   it('creates a Redis cache repository when REDIS_URL is configured', () => {
@@ -28,7 +29,7 @@ describe('createCacheRepository', () => {
 
     const repository = createCacheRepository();
 
-    assert.ok(repository instanceof RedisCacheRepository);
+    expect(repository).toBeInstanceOf(RedisCacheRepository);
   });
 
   it('creates Redis cache repository config from shared config', () => {
@@ -39,7 +40,7 @@ describe('createCacheRepository', () => {
 
     const config = createRedisCacheRepositoryConfig();
 
-    assert.deepEqual(config, {
+    expect(config).toEqual({
       url: 'redis://localhost:6379',
       ttlSeconds: 120
     });
@@ -53,46 +54,44 @@ describe('createCacheRepository', () => {
 
     const config = createRedisCacheRepositoryConfig();
 
-    assert.deepEqual(config, {
+    expect(config).toEqual({
       url: 'redis://localhost:6379',
       ttlSeconds: 300
     });
   });
 
-  it('stores and reads values through Redis when REDIS_URL is configured', async (t) => {
-    if (!process.env.REDIS_URL) {
-      t.skip('REDIS_URL is not configured');
-      return;
-    }
-    if (!(await canReachRedis(process.env.REDIS_URL))) {
-      t.skip('Redis is not reachable at REDIS_URL');
-      return;
-    }
+  redisIntegrationTest(
+    'stores and reads values through Redis when REDIS_URL is configured',
+    async () => {
+      if (!redisUrl || !(await canReachRedis(redisUrl))) {
+        return;
+      }
 
-    const repository = new RedisCacheRepository({
-      url: process.env.REDIS_URL,
-      ttlSeconds: 30
-    });
-    const key = `repository-score:test:${process.pid}:${Date.now()}`;
-    const value = {
-      data: [
-        {
-          id: 1,
-          fullName: 'example/api',
-          popularityScore: 82
-        }
-      ]
-    };
+      const repository = new RedisCacheRepository({
+        url: redisUrl,
+        ttlSeconds: 30
+      });
+      const key = `repository-score:test:${process.pid}:${Date.now()}`;
+      const value = {
+        data: [
+          {
+            id: 1,
+            fullName: 'example/api',
+            popularityScore: 82
+          }
+        ]
+      };
 
-    try {
-      await repository.set(key, value);
+      try {
+        await repository.set(key, value);
 
-      assert.deepEqual(await repository.get<typeof value>(key), value);
-    } finally {
-      await repository.delete(key).catch(() => undefined);
-      await repository.close();
+        await expect(repository.get<typeof value>(key)).resolves.toEqual(value);
+      } finally {
+        await repository.delete(key).catch(() => undefined);
+        await repository.close();
+      }
     }
-  });
+  );
 });
 
 async function canReachRedis(redisUrl: string): Promise<boolean> {

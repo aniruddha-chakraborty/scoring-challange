@@ -1,6 +1,3 @@
-import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
-
 import type {
   GitHubRepository,
   ScoredRepositoryResponse
@@ -26,7 +23,7 @@ describe('RepositoryScoreService', () => {
 
     const service = createRepositoryScoreService();
 
-    assert.ok(service instanceof RepositoryScoreService);
+    expect(service).toBeInstanceOf(RepositoryScoreService);
   });
 
   it('fetches repositories and returns scored results', async () => {
@@ -45,9 +42,9 @@ describe('RepositoryScoreService', () => {
       offset: 0
     });
 
-    assert.equal(response.data.length, 1);
-    assert.equal(response.data[0].fullName, 'example/api');
-    assert.equal(response.data[0].popularityScore, 100);
+    expect(response.data).toHaveLength(1);
+    expect(response.data[0].fullName).toBe('example/api');
+    expect(response.data[0].popularityScore).toBe(100);
   });
 
   it('sorts repositories by weighted popularity score', async () => {
@@ -76,8 +73,10 @@ describe('RepositoryScoreService', () => {
       offset: 0
     });
 
-    assert.equal(response.data[0].fullName, 'example/fresh');
-    assert.ok(response.data[0].popularityScore > response.data[1].popularityScore);
+    expect(response.data[0].fullName).toBe('example/fresh');
+    expect(response.data[0].popularityScore).toBeGreaterThan(
+      response.data[1].popularityScore
+    );
   });
 
   it('includes score breakdowns from zero to one hundred', async () => {
@@ -96,8 +95,8 @@ describe('RepositoryScoreService', () => {
     });
     const [repository] = data;
 
-    assert.equal(repository.popularityScore, 100);
-    assert.deepEqual(repository.scoreBreakdown, {
+    expect(repository.popularityScore).toBe(100);
+    expect(repository.scoreBreakdown).toEqual({
       stars: 100,
       forks: 100,
       recency: 100
@@ -123,8 +122,8 @@ describe('RepositoryScoreService', () => {
       offset: 0
     });
 
-    assert.equal(data[0].popularityScore, 20);
-    assert.deepEqual(data[0].scoreBreakdown, {
+    expect(data[0].popularityScore).toBe(20);
+    expect(data[0].scoreBreakdown).toEqual({
       stars: 0,
       forks: 0,
       recency: 100
@@ -160,10 +159,10 @@ describe('RepositoryScoreService', () => {
       offset: 0
     });
 
-    assert.deepEqual(response, cachedResponse);
-    assert.equal(repository.searchCalls, 0);
-    assert.deepEqual(cache.getCalls, [cacheKey]);
-    assert.equal(cache.setCalls.length, 0);
+    expect(response).toEqual(cachedResponse);
+    expect(repository.searchCalls).toBe(0);
+    expect(cache.getCalls).toEqual([cacheKey]);
+    expect(cache.setCalls).toHaveLength(0);
   });
 
   it('stores scored repository response in cache after a miss', async () => {
@@ -182,10 +181,10 @@ describe('RepositoryScoreService', () => {
       offset: 0
     });
 
-    assert.equal(repository.searchCalls, 1);
-    assert.deepEqual(cache.getCalls, [cacheKey]);
-    assert.equal(cache.setCalls[0].key, cacheKey);
-    assert.deepEqual(cache.setCalls[0].value, response);
+    expect(repository.searchCalls).toBe(1);
+    expect(cache.getCalls).toEqual([cacheKey]);
+    expect(cache.setCalls[0].key).toBe(cacheKey);
+    expect(cache.setCalls[0].value).toEqual(response);
   });
 
   it('uses trimmed language in cache keys', async () => {
@@ -202,7 +201,7 @@ describe('RepositoryScoreService', () => {
       offset: 0
     });
 
-    assert.deepEqual(cache.getCalls, [
+    expect(cache.getCalls).toEqual([
       '?language=TypeScript&createdAfter=2024-01-01&limit=10&offset=0'
     ]);
   });

@@ -1,5 +1,3 @@
-import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
 import type { NextFunction, Request, Response } from 'express';
 
 import { ErrorHandlerMiddleware } from '../../src/middlewares/error-handler';
@@ -27,10 +25,10 @@ describe('ErrorHandlerMiddleware', () => {
       createNext()
     );
 
-    assert.equal(logs.length, 1);
-    assert.equal(logs[0][0], 'Unhandled error');
-    assert.deepEqual(response.payload, { message: 'Internal server error' });
-    assert.equal(response.statusCode, 500);
+    expect(logs).toHaveLength(1);
+    expect(logs[0][0]).toBe('Unhandled error');
+    expect(response.payload).toEqual({ message: 'Internal server error' });
+    expect(response.statusCode).toBe(500);
   });
 
   it('does not log expected HttpError responses', () => {
@@ -47,9 +45,9 @@ describe('ErrorHandlerMiddleware', () => {
       createNext()
     );
 
-    assert.equal(logs.length, 0);
-    assert.deepEqual(response.payload, { message: 'Bad input' });
-    assert.equal(response.statusCode, 400);
+    expect(logs).toHaveLength(0);
+    expect(response.payload).toEqual({ message: 'Bad input' });
+    expect(response.statusCode).toBe(400);
   });
 
   it('passes errors to Express when headers were already sent', () => {
@@ -60,9 +58,9 @@ describe('ErrorHandlerMiddleware', () => {
 
     new ErrorHandlerMiddleware().handle(error, createRequest(), response, next);
 
-    assert.equal(next.error, error);
-    assert.equal(response.statusCode, undefined);
-    assert.equal(response.payload, undefined);
+    expect(next.error).toBe(error);
+    expect(response.statusCode).toBeUndefined();
+    expect(response.payload).toBeUndefined();
   });
 });
 

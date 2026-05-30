@@ -1,5 +1,3 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
 import type { Express } from 'express';
 
 import { App } from '../src/app';
@@ -18,7 +16,7 @@ describe('App', () => {
       )
     }).createExpressApp();
 
-    assert.ok(hasMountedRoute(expressApp, '/repositories'));
+    expect(hasMountedRoute(expressApp, '/repositories')).toBe(true);
   });
 });
 
