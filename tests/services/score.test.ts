@@ -16,7 +16,7 @@ const originalRedisUrl = process.env.REDIS_URL;
 
 describe('RepositoryScoreService', () => {
   afterEach(() => {
-    process.env.REDIS_URL = originalRedisUrl;
+    restoreEnv('REDIS_URL', originalRedisUrl);
   });
 
   it('creates a repository score service from the factory', () => {
@@ -255,4 +255,13 @@ function createRepository(
     updatedAt: new Date().toISOString(),
     ...overrides
   };
+}
+
+function restoreEnv(name: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[name];
+    return;
+  }
+
+  process.env[name] = value;
 }

@@ -18,7 +18,7 @@ type GitHubRepositoryOptions = {
 };
 
 export function createGitHubRepository(): GitHubRepositoryRepository {
-  return new GitHubRestRepository({ token: process.env.GITHUB_TOKEN });
+  return new GitHubRestRepository();
 }
 
 export class GitHubRestRepository implements GitHubRepositoryRepository {
@@ -27,7 +27,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
 
   constructor(options: GitHubRepositoryOptions = {}) {
     this.baseUrl = options.baseUrl ?? 'https://api.github.com';
-    this.token = options.token;
+    this.token = options.token ?? process.env.GITHUB_TOKEN;
   }
 
   public async searchRepositories(

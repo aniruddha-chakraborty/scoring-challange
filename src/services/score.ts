@@ -24,10 +24,7 @@ type PopularityWeights = {
 };
 
 export function createRepositoryScoreService(): RepositoryScoreService {
-  return new RepositoryScoreService(
-    createGitHubRepository(),
-    createCacheRepository()
-  );
+  return new RepositoryScoreService();
 }
 
 export class RepositoryScoreService {
@@ -38,8 +35,9 @@ export class RepositoryScoreService {
   };
 
   constructor(
-    private readonly githubRepositoryRepository: GitHubRepositoryRepository,
-    private readonly cacheRepository: CacheRepository
+    private readonly githubRepositoryRepository: GitHubRepositoryRepository =
+      createGitHubRepository(),
+    private readonly cacheRepository: CacheRepository = createCacheRepository()
   ) {}
 
   public async listScoredRepositories(

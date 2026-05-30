@@ -9,13 +9,15 @@ import { isIsoDate } from '../utils/helpers.utils';
 import { BadRequestError } from '../utils/http-errors';
 
 export function createRepositoryScoreController(): RepositoryScoreController {
-  return new RepositoryScoreController(createRepositoryScoreService());
+  return new RepositoryScoreController();
 }
 
 export class RepositoryScoreController {
   public readonly router = Router();
 
-  constructor(private readonly repositoryScoreService: RepositoryScoreService) {
+  constructor(
+    private readonly repositoryScoreService: RepositoryScoreService = createRepositoryScoreService()
+  ) {
     this.registerRoutes();
   }
 

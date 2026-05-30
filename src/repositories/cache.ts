@@ -11,7 +11,7 @@ export type RedisCacheRepositoryConfig = {
 };
 
 export function createCacheRepository(): CacheRepository {
-  return new RedisCacheRepository(createRedisCacheRepositoryConfig());
+  return new RedisCacheRepository();
 }
 
 export function createRedisCacheRepositoryConfig(): RedisCacheRepositoryConfig {
@@ -29,7 +29,10 @@ export class RedisCacheRepository implements CacheRepository {
   private readonly client: ReturnType<typeof createClient>;
   private connectPromise?: Promise<void>;
 
-  constructor(private readonly config: RedisCacheRepositoryConfig) {
+  constructor(
+    private readonly config: RedisCacheRepositoryConfig =
+      createRedisCacheRepositoryConfig()
+  ) {
     this.client = createClient({
       url: config.url,
       socket: {

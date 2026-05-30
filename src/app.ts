@@ -8,13 +8,23 @@ import { ErrorHandlerMiddleware } from './middlewares/error-handler';
 
 type AppDependencies = {
   repositoryScoreController?: RepositoryScoreController;
+  errorHandler?: ErrorHandlerMiddleware;
 };
 
 export class App {
+  private readonly dependencies: Required<AppDependencies>;
+
   constructor(
     private readonly port: string | number = process.env.PORT || 3000,
-    private readonly dependencies: AppDependencies = {}
-  ) {}
+    dependencies: AppDependencies = {}
+  ) {
+    this.dependencies = {
+      repositoryScoreController:
+        dependencies.repositoryScoreController ??
+        createRepositoryScoreController(),
+      errorHandler: dependencies.errorHandler ?? new ErrorHandlerMiddleware()
+    };
+  }
 
   public start(): void {
     const app = this.createExpressApp();
@@ -29,10 +39,7 @@ export class App {
 
     app.use(express.json());
 
-    const repositoryScoreController =
-      this.dependencies.repositoryScoreController ??
-      createRepositoryScoreController();
-    const errorHandler = new ErrorHandlerMiddleware();
+    const { repositoryScoreController, errorHandler } = this.dependencies;
 
     app.get('/health', (req: Request, res: Response) => {
       res.json({ status: 'ok' });
