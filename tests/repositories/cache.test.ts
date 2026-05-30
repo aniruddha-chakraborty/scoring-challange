@@ -8,7 +8,6 @@ import {
 import { mockConfig, restoreConfig } from '../helpers/config.mock';
 
 const redisUrl = process.env.REDIS_URL;
-const redisIntegrationTest = redisUrl ? it : it.skip;
 
 describe('createCacheRepository', () => {
   afterEach(() => {
@@ -60,12 +59,9 @@ describe('createCacheRepository', () => {
     });
   });
 
-  redisIntegrationTest(
-    'stores and reads values through Redis when REDIS_URL is configured',
-    async () => {
-      if (!redisUrl || !(await canReachRedis(redisUrl))) {
-        return;
-      }
+  if (redisUrl) {
+    it('stores and reads values through Redis when REDIS_URL is configured', async () => {
+      expect(await canReachRedis(redisUrl)).toBe(true);
 
       const repository = new RedisCacheRepository({
         url: redisUrl,
@@ -90,8 +86,8 @@ describe('createCacheRepository', () => {
         await repository.delete(key).catch(() => undefined);
         await repository.close();
       }
-    }
-  );
+    });
+  }
 });
 
 async function canReachRedis(redisUrl: string): Promise<boolean> {

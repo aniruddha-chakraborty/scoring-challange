@@ -70,6 +70,8 @@ The cached value is the full JSON response:
 
 ## Run
 
+Local development:
+
 ```bash
 npm install
 npm run dev
@@ -110,14 +112,21 @@ so Docker is not required for the normal test suite.
 make up
 ```
 
-Starts the Docker services, including the API and Redis.
+Starts the Docker services in the background, including the API and Redis.
 
 ```bash
-make test-integration
+make integration
 ```
 
 Runs the black-box HTTP integration tests in `tests/integration.ts`. These
 tests expect the app to already be running, so start Docker first.
+
+```bash
+make performance
+```
+
+Runs the Artillery performance test against the cached repository search URL.
+This command first warms the cache with one request, then runs the load test.
 
 ```bash
 make down
@@ -129,8 +138,20 @@ Typical integration-test flow:
 
 ```bash
 make up
-make test-integration
+make integration
 make down
+```
+
+To run the full flow with one command:
+
+```bash
+make complete-integration
+```
+
+To run the performance test with Docker startup and shutdown:
+
+```bash
+make complete-performance
 ```
 
 Other useful commands:
@@ -140,6 +161,38 @@ make dev      # Run the local development server
 make start    # Run the built app locally
 make restart  # Restart Docker services with rebuild
 make clean    # Remove local build output
+```
+
+## Performance Testing
+
+Performance testing uses Artillery and targets one repository search URL:
+
+```text
+GET /repositories?language=Go&createdAfter=2024-06-01&limit=10&offset=0
+```
+
+The scenario is defined in `performance/repositories.yml`.
+
+To avoid repeatedly calling GitHub during the load test, `make performance`
+does a warmup request first. That warmup fills Redis for the exact query string,
+then Artillery runs 20 virtual users. Each virtual user sends the same cached
+request 100 times.
+
+```bash
+make performance
+```
+
+If the app is not already running, use:
+
+```bash
+make complete-performance
+```
+
+The default target is `http://localhost:3000`. To point the test somewhere
+else:
+
+```bash
+make performance PERF_TARGET=http://localhost:4000
 ```
 
 Available endpoints:

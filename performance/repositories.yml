@@ -1,0 +1,19 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - name: "20 users, 100 cached requests each"
+      duration: 1
+      arrivalCount: 20
+  defaults:
+    headers:
+      Accept: "application/json"
+
+scenarios:
+  - name: "cached repository search"
+    flow:
+      - loop:
+          - get:
+              url: "/repositories?language=Go&createdAfter=2024-06-01&limit=10&offset=0"
+              expect:
+                - statusCode: 200
+        count: 100
