@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run clean:test && tsc -p tsconfig.test.json && node --test dist-test/tests/*.test.js dist-test/tests/controllers/*.test.js dist-test/tests/middlewares/*.test.js dist-test/tests/repositories/*.test.js dist-test/tests/services/*.test.js dist-test/tests/utils/*.test.js",
+    "test:integration": "npm run clean:test && tsc -p tsconfig.test.json && node --test dist-test/tests/integration.js",
     "clean:test": "rm -rf dist-test",
     "start": "node dist/app.js",
     "dev": "tsx watch src/app.ts"
