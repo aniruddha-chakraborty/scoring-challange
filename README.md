@@ -1,20 +1,36 @@
 # Repository Popularity Score Service
 
-Initial TypeScript Node.js service structure using class-based controller,
-service, and repository layers.
+Backend service for searching GitHub repositories and assigning each repository
+a popularity score. The API lets users filter repositories by language and
+earliest creation date, then ranks results using stars, forks, and update
+recency.
+
+The project is built with TypeScript, Express, Redis caching, and a class-based
+controller, service, and repository structure.
 
 ## Structure
 
 ```text
 src/
-  app.ts
-  config.ts
-  controllers/
-  services/
-  repositories/
-  models/
-  middlewares/
-  utils/
+  app.ts -> Creates and starts the Express application.
+  config.ts -> Loads `.env` and exposes runtime configuration.
+  controllers/ -> Handles HTTP request parsing, validation, and responses.
+  services/ -> Contains business logic, scoring, caching flow, and orchestration.
+  repositories/ -> Talks to external systems such as GitHub API and Redis.
+  models/ -> Defines shared TypeScript types for repositories and scores.
+  middlewares/ -> Contains Express middleware such as centralized error handling.
+  utils/ -> Contains small reusable helper functions and HTTP error classes.
+
+tests/
+  app.test.ts -> Tests Express app wiring and mounted routes.
+  config.test.ts -> Tests environment-backed config defaults and values.
+  integration.ts -> Sends black-box HTTP requests to a running app.
+  controllers/ -> Tests controller request parsing and validation behavior.
+  services/ -> Tests scoring, sorting, cache lookup, and service orchestration.
+  repositories/ -> Tests GitHub API mapping/validation and Redis cache behavior.
+  middlewares/ -> Tests centralized error handling behavior.
+  utils/ -> Tests helper utilities such as date and score calculations.
+  helpers/ -> Contains reusable Jest test helpers, such as config mocks.
 ```
 
 ## Layers
@@ -64,6 +80,66 @@ Build for production:
 ```bash
 npm run build
 npm start
+```
+
+## Make Commands
+
+The project includes a `Makefile` as a shortcut layer over common npm and
+Docker commands.
+
+```bash
+make install
+```
+
+Installs Node dependencies with `npm install`.
+
+```bash
+make build
+```
+
+Builds the TypeScript source into `dist/`.
+
+```bash
+make test
+```
+
+Runs the Jest unit test suite. These tests use mocks and stubs where needed,
+so Docker is not required for the normal test suite.
+
+```bash
+make up
+```
+
+Starts the Docker services, including the API and Redis.
+
+```bash
+make test-integration
+```
+
+Runs the black-box HTTP integration tests in `tests/integration.ts`. These
+tests expect the app to already be running, so start Docker first.
+
+```bash
+make down
+```
+
+Stops the Docker services.
+
+Typical integration-test flow:
+
+```bash
+make up
+make test-integration
+make down
+```
+
+Other useful commands:
+
+```bash
+make dev      # Run the local development server
+make start    # Run the built app locally
+make restart  # Restart Docker services with rebuild
+make clean    # Remove local build output
 ```
 
 Available endpoints:

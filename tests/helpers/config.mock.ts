@@ -7,17 +7,42 @@ type ConfigOverrides = Partial<{
   cacheTtlSeconds: number;
 }>;
 
-const originalDescriptors = Object.getOwnPropertyDescriptors(config);
+const spies: jest.SpyInstance[] = [];
 
 export function mockConfig(overrides: ConfigOverrides): void {
-  Object.entries(overrides).forEach(([key, value]) => {
-    Object.defineProperty(config, key, {
-      configurable: true,
-      get: () => value
-    });
-  });
+  if ('port' in overrides) {
+    spies.push(
+      jest
+        .spyOn(config, 'port', 'get')
+        .mockReturnValue(overrides.port as string | number)
+    );
+  }
+
+  if ('githubToken' in overrides) {
+    spies.push(
+      jest
+        .spyOn(config, 'githubToken', 'get')
+        .mockReturnValue(overrides.githubToken)
+    );
+  }
+
+  if ('redisUrl' in overrides) {
+    spies.push(
+      jest.spyOn(config, 'redisUrl', 'get').mockReturnValue(overrides.redisUrl)
+    );
+  }
+
+  if ('cacheTtlSeconds' in overrides) {
+    spies.push(
+      jest
+        .spyOn(config, 'cacheTtlSeconds', 'get')
+        .mockReturnValue(overrides.cacheTtlSeconds as number)
+    );
+  }
 }
 
 export function restoreConfig(): void {
-  Object.defineProperties(config, originalDescriptors);
+  spies.splice(0).forEach((spy) => {
+    spy.mockRestore();
+  });
 }
