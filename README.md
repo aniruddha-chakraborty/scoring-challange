@@ -8,6 +8,7 @@ service, and repository layers.
 ```text
 src/
   app.ts
+  config.ts
   controllers/
   services/
   repositories/
@@ -72,6 +73,7 @@ Available endpoints:
 
 Environment variables:
 
+- Local development can use a `.env` file. See `.env.example`.
 - `GITHUB_TOKEN`: GitHub token for higher API rate limits.
 - `REDIS_URL`: Required Redis connection URL, for example `redis://localhost:6379`.
 - `CACHE_TTL_SECONDS`: Cache TTL in seconds. Defaults to `300`.

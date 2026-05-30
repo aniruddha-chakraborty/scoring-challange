@@ -4,6 +4,7 @@ import type {
   GitHubSearchResponse,
   RepositorySearchCriteria
 } from '../models/score';
+import { config } from '../config';
 import { GitHubApiError } from '../utils/http-errors';
 
 export interface GitHubRepositoryRepository {
@@ -27,7 +28,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
 
   constructor(options: GitHubRepositoryOptions = {}) {
     this.baseUrl = options.baseUrl ?? 'https://api.github.com';
-    this.token = options.token ?? process.env.GITHUB_TOKEN;
+    this.token = options.token ?? config.githubToken;
   }
 
   public async searchRepositories(

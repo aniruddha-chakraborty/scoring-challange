@@ -1,5 +1,7 @@
 import { createClient } from 'redis';
 
+import { config } from '../config';
+
 export interface CacheRepository {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
@@ -15,13 +17,15 @@ export function createCacheRepository(): CacheRepository {
 }
 
 export function createRedisCacheRepositoryConfig(): RedisCacheRepositoryConfig {
-  if (!process.env.REDIS_URL) {
+  const redisUrl = config.redisUrl;
+
+  if (!redisUrl) {
     throw new Error('REDIS_URL is required');
   }
 
   return {
-    url: process.env.REDIS_URL,
-    ttlSeconds: Number(process.env.CACHE_TTL_SECONDS ?? 300)
+    url: redisUrl,
+    ttlSeconds: config.cacheTtlSeconds
   };
 }
 

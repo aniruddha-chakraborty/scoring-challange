@@ -12,6 +12,7 @@
     "dev": "tsx watch src/app.ts"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "redis": "^6.0.0"
   },

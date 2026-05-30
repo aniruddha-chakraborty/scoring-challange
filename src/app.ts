@@ -4,6 +4,7 @@ import {
   createRepositoryScoreController,
   RepositoryScoreController
 } from './controllers/score';
+import { config } from './config';
 import { ErrorHandlerMiddleware } from './middlewares/error-handler';
 
 type AppDependencies = {
@@ -15,7 +16,7 @@ export class App {
   private readonly dependencies: Required<AppDependencies>;
 
   constructor(
-    private readonly port: string | number = process.env.PORT || 3000,
+    private readonly port: string | number = config.port,
     dependencies: AppDependencies = {}
   ) {
     this.dependencies = {
