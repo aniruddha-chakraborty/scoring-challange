@@ -12,16 +12,18 @@ import {
 } from '../../src/controllers/score';
 import { RepositoryScoreService } from '../../src/services/score';
 import { BadRequestError } from '../../src/utils/http-errors';
-
-const originalRedisUrl = process.env.REDIS_URL;
+import { mockConfig, restoreConfig } from '../helpers/config.mock';
 
 describe('RepositoryScoreController', () => {
   afterEach(() => {
-    restoreEnv('REDIS_URL', originalRedisUrl);
+    restoreConfig();
   });
 
   it('creates a repository score controller from the factory', () => {
-    process.env.REDIS_URL = 'redis://localhost:6379';
+    mockConfig({
+      redisUrl: 'redis://localhost:6379',
+      cacheTtlSeconds: 300
+    });
 
     const controller = createRepositoryScoreController();
 
@@ -245,13 +247,4 @@ function createNext(): NextFunction & { error?: unknown } {
   }) as NextFunction & { error?: unknown };
 
   return next;
-}
-
-function restoreEnv(name: string, value: string | undefined): void {
-  if (value === undefined) {
-    delete process.env[name];
-    return;
-  }
-
-  process.env[name] = value;
 }

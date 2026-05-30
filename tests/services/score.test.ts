@@ -11,16 +11,18 @@ import {
   createRepositoryScoreService,
   RepositoryScoreService
 } from '../../src/services/score';
-
-const originalRedisUrl = process.env.REDIS_URL;
+import { mockConfig, restoreConfig } from '../helpers/config.mock';
 
 describe('RepositoryScoreService', () => {
   afterEach(() => {
-    restoreEnv('REDIS_URL', originalRedisUrl);
+    restoreConfig();
   });
 
   it('creates a repository score service from the factory', () => {
-    process.env.REDIS_URL = 'redis://localhost:6379';
+    mockConfig({
+      redisUrl: 'redis://localhost:6379',
+      cacheTtlSeconds: 300
+    });
 
     const service = createRepositoryScoreService();
 
@@ -255,13 +257,4 @@ function createRepository(
     updatedAt: new Date().toISOString(),
     ...overrides
   };
-}
-
-function restoreEnv(name: string, value: string | undefined): void {
-  if (value === undefined) {
-    delete process.env[name];
-    return;
-  }
-
-  process.env[name] = value;
 }

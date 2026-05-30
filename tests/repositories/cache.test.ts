@@ -7,34 +7,35 @@ import {
   createRedisCacheRepositoryConfig,
   RedisCacheRepository
 } from '../../src/repositories/cache';
-
-const originalRedisUrl = process.env.REDIS_URL;
-const originalCacheTtlSeconds = process.env.CACHE_TTL_SECONDS;
+import { mockConfig, restoreConfig } from '../helpers/config.mock';
 
 describe('createCacheRepository', () => {
   afterEach(() => {
-    restoreEnv('REDIS_URL', originalRedisUrl);
-    restoreEnv('CACHE_TTL_SECONDS', originalCacheTtlSeconds);
+    restoreConfig();
   });
 
   it('requires REDIS_URL', () => {
-    delete process.env.REDIS_URL;
+    mockConfig({ redisUrl: undefined });
 
     assert.throws(() => createCacheRepository(), /REDIS_URL is required/);
   });
 
   it('creates a Redis cache repository when REDIS_URL is configured', () => {
-    process.env.REDIS_URL = 'redis://localhost:6379';
-    process.env.CACHE_TTL_SECONDS = '300';
+    mockConfig({
+      redisUrl: 'redis://localhost:6379',
+      cacheTtlSeconds: 300
+    });
 
     const repository = createCacheRepository();
 
     assert.ok(repository instanceof RedisCacheRepository);
   });
 
-  it('creates Redis cache repository config from environment', () => {
-    process.env.REDIS_URL = 'redis://localhost:6379';
-    process.env.CACHE_TTL_SECONDS = '120';
+  it('creates Redis cache repository config from shared config', () => {
+    mockConfig({
+      redisUrl: 'redis://localhost:6379',
+      cacheTtlSeconds: 120
+    });
 
     const config = createRedisCacheRepositoryConfig();
 
@@ -44,9 +45,11 @@ describe('createCacheRepository', () => {
     });
   });
 
-  it('defaults Redis cache TTL to five minutes', () => {
-    process.env.REDIS_URL = 'redis://localhost:6379';
-    delete process.env.CACHE_TTL_SECONDS;
+  it('uses default Redis cache TTL from shared config', () => {
+    mockConfig({
+      redisUrl: 'redis://localhost:6379',
+      cacheTtlSeconds: 300
+    });
 
     const config = createRedisCacheRepositoryConfig();
 
@@ -91,15 +94,6 @@ describe('createCacheRepository', () => {
     }
   });
 });
-
-function restoreEnv(name: string, value: string | undefined): void {
-  if (value === undefined) {
-    delete process.env[name];
-    return;
-  }
-
-  process.env[name] = value;
-}
 
 async function canReachRedis(redisUrl: string): Promise<boolean> {
   let url: URL;

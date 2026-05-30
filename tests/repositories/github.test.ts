@@ -1,17 +1,23 @@
 import assert from 'node:assert/strict';
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import {
   createGitHubRepository,
   GitHubRestRepository
 } from '../../src/repositories/github';
 import { GitHubApiError } from '../../src/utils/http-errors';
+import { mockConfig, restoreConfig } from '../helpers/config.mock';
 
 const originalFetch = globalThis.fetch;
 
 describe('GitHubRestRepository', () => {
   afterEach(() => {
     globalThis.fetch = originalFetch;
+    restoreConfig();
+  });
+
+  beforeEach(() => {
+    mockConfig({ githubToken: undefined });
   });
 
   it('creates a GitHub repository from the factory', () => {
