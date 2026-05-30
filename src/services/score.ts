@@ -3,9 +3,15 @@ import type {
   RepositorySearchCriteria,
   ScoredRepository,
   ScoredRepositoryResponse
-} from '../models/github-repository.model';
-import type { CacheRepository } from '../repositories/cache.repository';
-import type { GitHubRepositoryRepository } from '../repositories/github-repository.repository';
+} from '../models/score';
+import {
+  createCacheRepository,
+  type CacheRepository
+} from '../repositories/cache';
+import {
+  createGitHubRepository,
+  type GitHubRepositoryRepository
+} from '../repositories/github';
 import {
   calculateRecencyScore,
   toScore
@@ -16,6 +22,13 @@ type PopularityWeights = {
   forks: number;
   recency: number;
 };
+
+export function createRepositoryScoreService(): RepositoryScoreService {
+  return new RepositoryScoreService(
+    createGitHubRepository(),
+    createCacheRepository()
+  );
+}
 
 export class RepositoryScoreService {
   private readonly weights: PopularityWeights = {

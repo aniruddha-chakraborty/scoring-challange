@@ -1,15 +1,32 @@
 import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
+import { afterEach, describe, it } from 'node:test';
 
 import type {
   GitHubRepository,
   ScoredRepositoryResponse
-} from '../../src/models/github-repository.model';
-import type { CacheRepository } from '../../src/repositories/cache.repository';
-import type { GitHubRepositoryRepository } from '../../src/repositories/github-repository.repository';
-import { RepositoryScoreService } from '../../src/services/repository-score.service';
+} from '../../src/models/score';
+import type { CacheRepository } from '../../src/repositories/cache';
+import type { GitHubRepositoryRepository } from '../../src/repositories/github';
+import {
+  createRepositoryScoreService,
+  RepositoryScoreService
+} from '../../src/services/score';
+
+const originalRedisUrl = process.env.REDIS_URL;
 
 describe('RepositoryScoreService', () => {
+  afterEach(() => {
+    process.env.REDIS_URL = originalRedisUrl;
+  });
+
+  it('creates a repository score service from the factory', () => {
+    process.env.REDIS_URL = 'redis://localhost:6379';
+
+    const service = createRepositoryScoreService();
+
+    assert.ok(service instanceof RepositoryScoreService);
+  });
+
   it('fetches repositories and returns scored results', async () => {
     const repository = new StubGitHubRepositoryRepository([
       createRepository({ fullName: 'example/api', stars: 50, forks: 10 })
@@ -85,6 +102,33 @@ describe('RepositoryScoreService', () => {
     });
   });
 
+  it('scores zero-star and zero-fork repositories using recency only', async () => {
+    const service = new RepositoryScoreService(
+      new StubGitHubRepositoryRepository([
+        createRepository({
+          stars: 0,
+          forks: 0,
+          updatedAt: new Date().toISOString()
+        })
+      ]),
+      new StubCacheRepository()
+    );
+
+    const { data } = await service.listScoredRepositories({
+      language: 'TypeScript',
+      createdAfter: '2024-01-01',
+      limit: 10,
+      offset: 0
+    });
+
+    assert.equal(data[0].popularityScore, 20);
+    assert.deepEqual(data[0].scoreBreakdown, {
+      stars: 0,
+      forks: 0,
+      recency: 100
+    });
+  });
+
   it('returns cached repository scores when the query key exists', async () => {
     const cacheKey =
       '?language=TypeScript&createdAfter=2024-01-01&limit=10&offset=0';
@@ -140,6 +184,25 @@ describe('RepositoryScoreService', () => {
     assert.deepEqual(cache.getCalls, [cacheKey]);
     assert.equal(cache.setCalls[0].key, cacheKey);
     assert.deepEqual(cache.setCalls[0].value, response);
+  });
+
+  it('uses trimmed language in cache keys', async () => {
+    const repository = new StubGitHubRepositoryRepository([
+      createRepository({ fullName: 'example/api', stars: 50, forks: 10 })
+    ]);
+    const cache = new StubCacheRepository();
+    const service = new RepositoryScoreService(repository, cache);
+
+    await service.listScoredRepositories({
+      language: ' TypeScript ',
+      createdAfter: '2024-01-01',
+      limit: 10,
+      offset: 0
+    });
+
+    assert.deepEqual(cache.getCalls, [
+      '?language=TypeScript&createdAfter=2024-01-01&limit=10&offset=0'
+    ]);
   });
 });
 

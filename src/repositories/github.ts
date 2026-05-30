@@ -3,17 +3,23 @@ import type {
   GitHubSearchRepositoryItem,
   GitHubSearchResponse,
   RepositorySearchCriteria
-} from '../models/github-repository.model';
+} from '../models/score';
 import { GitHubApiError } from '../utils/http-errors';
 
 export interface GitHubRepositoryRepository {
-  searchRepositories(criteria: RepositorySearchCriteria): Promise<GitHubRepository[]>;
+  searchRepositories(
+    criteria: RepositorySearchCriteria
+  ): Promise<GitHubRepository[]>;
 }
 
 type GitHubRepositoryOptions = {
   baseUrl?: string;
   token?: string;
 };
+
+export function createGitHubRepository(): GitHubRepositoryRepository {
+  return new GitHubRestRepository({ token: process.env.GITHUB_TOKEN });
+}
 
 export class GitHubRestRepository implements GitHubRepositoryRepository {
   private readonly baseUrl: string;
@@ -24,7 +30,9 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     this.token = options.token;
   }
 
-  public async searchRepositories( criteria: RepositorySearchCriteria ): Promise<GitHubRepository[]> {
+  public async searchRepositories(
+    criteria: RepositorySearchCriteria
+  ): Promise<GitHubRepository[]> {
     const url = this.buildSearchUrl(criteria);
     const response = await fetch(url, {
       headers: this.buildHeaders()
@@ -36,7 +44,15 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
       );
     }
 
-    const body = (await response.json()) as GitHubSearchResponse;
+    const body = await this.parseSearchResponse(response);
+
+    // GitHub is an upstream API, so validate the runtime JSON before trusting it.
+    if (
+      !Array.isArray(body.items) ||
+      !body.items.every((item) => this.isRepositoryItem(item))
+    ) {
+      throw new GitHubApiError('Invalid GitHub response');
+    }
 
     return body.items.map((item) => this.toRepository(item));
   }
@@ -67,6 +83,33 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
       'User-Agent': 'repository-popularity-score-service',
       ...(this.token ? { Authorization: `Bearer ${this.token}` } : {})
     };
+  }
+
+  private async parseSearchResponse(
+    response: Response
+  ): Promise<Partial<GitHubSearchResponse>> {
+    try {
+      return (await response.json()) as Partial<GitHubSearchResponse>;
+    } catch {
+      throw new GitHubApiError('Invalid GitHub response');
+    }
+  }
+
+  private isRepositoryItem(value: unknown): value is GitHubSearchRepositoryItem {
+    const item = value as Partial<GitHubSearchRepositoryItem>;
+
+    return (
+      typeof item.id === 'number' &&
+      typeof item.name === 'string' &&
+      typeof item.full_name === 'string' &&
+      (typeof item.description === 'string' || item.description === null) &&
+      typeof item.html_url === 'string' &&
+      (typeof item.language === 'string' || item.language === null) &&
+      typeof item.stargazers_count === 'number' &&
+      typeof item.forks_count === 'number' &&
+      typeof item.created_at === 'string' &&
+      typeof item.updated_at === 'string'
+    );
   }
 
   private toRepository(item: GitHubSearchRepositoryItem): GitHubRepository {

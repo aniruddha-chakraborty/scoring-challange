@@ -1,9 +1,16 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 
-import type { RepositorySearchCriteria } from '../models/github-repository.model';
-import { RepositoryScoreService } from '../services/repository-score.service';
+import type { RepositorySearchCriteria } from '../models/score';
+import {
+  createRepositoryScoreService,
+  RepositoryScoreService
+} from '../services/score';
 import { isIsoDate } from '../utils/helpers.utils';
 import { BadRequestError } from '../utils/http-errors';
+
+export function createRepositoryScoreController(): RepositoryScoreController {
+  return new RepositoryScoreController(createRepositoryScoreService());
+}
 
 export class RepositoryScoreController {
   public readonly router = Router();
