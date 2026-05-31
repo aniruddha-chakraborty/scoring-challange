@@ -187,6 +187,27 @@ describe('RepositoryScoreService', () => {
     expect(cache.setCalls[0].value).toEqual(response);
   });
 
+  it('returns empty data for future createdAfter dates without calling GitHub', async () => {
+    const cacheKey =
+      '?language=TypeScript&createdAfter=2999-01-01&limit=10&offset=0';
+    const repository = new StubGitHubRepositoryRepository([
+      createRepository({ fullName: 'example/api' })
+    ]);
+    const cache = new StubCacheRepository();
+    const service = new RepositoryScoreService(repository, cache);
+
+    const response = await service.listScoredRepositories({
+      language: 'TypeScript',
+      createdAfter: '2999-01-01',
+      limit: 10,
+      offset: 0
+    });
+
+    expect(response).toEqual({ data: [] });
+    expect(repository.searchCalls).toBe(0);
+    expect(cache.setCalls).toEqual([{ key: cacheKey, value: response }]);
+  });
+
   it('uses trimmed language in cache keys', async () => {
     const repository = new StubGitHubRepositoryRepository([
       createRepository({ fullName: 'example/api', stars: 50, forks: 10 })

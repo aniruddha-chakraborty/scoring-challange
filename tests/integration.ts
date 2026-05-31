@@ -10,6 +10,15 @@ describe('repositories HTTP integration', () => {
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 
+  it('returns empty data for a future createdAfter date', async () => {
+    const response = await requestJson(
+      '/repositories?language=Go&createdAfter=2999-01-01&limit=10&offset=0'
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ data: [] });
+  });
+
   it('rejects requests without language', async () => {
     const response = await requestJson(
       '/repositories?createdAfter=2024-06-01&limit=10&offset=0'

@@ -51,6 +51,12 @@ export class RepositoryScoreService {
       return cachedResponse;
     }
 
+    if (this.isFutureDate(criteria.createdAfter)) {
+      const response = { data: [] };
+      await this.cacheRepository.set(cacheKey, response);
+      return response;
+    }
+
     const repositories =
       await this.githubRepositoryRepository.searchRepositories(criteria);
     const response = {
@@ -71,6 +77,15 @@ export class RepositoryScoreService {
     });
 
     return `?${params.toString()}`;
+  }
+
+  private isFutureDate(value: string, now = new Date()): boolean {
+    const searchDate = new Date(`${value}T00:00:00.000Z`);
+    const today = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+    );
+
+    return searchDate.getTime() > today.getTime();
   }
 
   private scoreRepositories(

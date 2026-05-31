@@ -1,5 +1,16 @@
 # Repository Popularity Score Service
 
+[![CI](https://github.com/aniruddha-chakraborty/scoring-challange/actions/workflows/ci.yml/badge.svg)](https://github.com/aniruddha-chakraborty/scoring-challange/actions/workflows/ci.yml)
+![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
+![typescript](https://img.shields.io/badge/typescript-5.x-blue)
+![express](https://img.shields.io/badge/api-Express%20REST-blue)
+![redis](https://img.shields.io/badge/cache-Redis-red)
+![jest](https://img.shields.io/badge/tests-Jest-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-86.02%25-brightgreen)
+![docker](https://img.shields.io/badge/docker-compose-blue)
+![artillery](https://img.shields.io/badge/benchmarks-Artillery-blue)
+![audit](https://img.shields.io/badge/audit-0%20vulnerabilities-brightgreen)
+
 Backend service for searching GitHub repositories and assigning each repository
 a popularity score. The API lets users filter repositories by language and
 earliest creation date, then ranks results using stars, forks, and update
