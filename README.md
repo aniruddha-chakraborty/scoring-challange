@@ -135,6 +135,14 @@ npm run build
 npm start
 ```
 
+## Production Notes
+
+For a production deployment, the API and Redis would be deployed as separate
+services. The API is stateless apart from Redis-backed caching, so it can be
+scaled horizontally behind a load balancer. Runtime configuration is provided
+through environment variables, including GitHub authentication, Redis URL, and
+cache TTL.
+
 ## Make Commands
 
 The project includes a `Makefile` as a shortcut layer over common npm and
