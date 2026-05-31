@@ -143,6 +143,22 @@ scaled horizontally behind a load balancer. Runtime configuration is provided
 through environment variables, including GitHub authentication, Redis URL, and
 cache TTL.
 
+## Helm Chart
+
+A minimal Helm chart is available in `charts/ranking-service`. It deploys the
+API as a stateless Kubernetes `Deployment` and `Service`, with runtime
+configuration provided through a `ConfigMap` and optional GitHub token
+`Secret`.
+
+Redis is treated as an external dependency and configured through
+`redis.url` in `values.yaml`.
+
+Render the chart locally:
+
+```bash
+helm template ranking-service ./charts/ranking-service
+```
+
 ## Make Commands
 
 The project includes a `Makefile` as a shortcut layer over common npm and
