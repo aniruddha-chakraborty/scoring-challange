@@ -68,6 +68,10 @@ export class RepositoryScoreService {
     return response;
   }
 
+  public async close(): Promise<void> {
+    await this.cacheRepository.close?.();
+  }
+
   private buildCacheKey(criteria: RepositorySearchCriteria): string {
     const params = new URLSearchParams({
       language: criteria.language.trim(),

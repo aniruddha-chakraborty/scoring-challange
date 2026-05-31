@@ -25,6 +25,10 @@ export class RepositoryScoreController {
     this.router.get('/', this.listScoredRepositories);
   }
 
+  public async close(): Promise<void> {
+    await this.repositoryScoreService.close();
+  }
+
   private listScoredRepositories = async (
     req: Request,
     res: Response,

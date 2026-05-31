@@ -5,6 +5,7 @@ import { config } from '../config';
 export interface CacheRepository {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T): Promise<void>;
+  close?(): Promise<void>;
 }
 
 export type RedisCacheRepositoryConfig = {

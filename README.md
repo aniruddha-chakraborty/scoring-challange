@@ -6,7 +6,7 @@
 ![express](https://img.shields.io/badge/api-Express%20REST-blue)
 ![redis](https://img.shields.io/badge/cache-Redis-red)
 ![jest](https://img.shields.io/badge/tests-Jest-brightgreen)
-![coverage](https://img.shields.io/badge/coverage-86.02%25-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-85.84%25-brightgreen)
 ![docker](https://img.shields.io/badge/docker-compose-blue)
 ![artillery](https://img.shields.io/badge/benchmarks-Artillery-blue)
 ![audit](https://img.shields.io/badge/audit-0%20vulnerabilities-brightgreen)

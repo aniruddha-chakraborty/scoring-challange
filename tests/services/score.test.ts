@@ -226,6 +226,18 @@ describe('RepositoryScoreService', () => {
       '?language=TypeScript&createdAfter=2024-01-01&limit=10&offset=0'
     ]);
   });
+
+  it('closes the cache repository during shutdown', async () => {
+    const cache = new StubCacheRepository();
+    const service = new RepositoryScoreService(
+      new StubGitHubRepositoryRepository([]),
+      cache
+    );
+
+    await service.close();
+
+    expect(cache.closeCalls).toBe(1);
+  });
 });
 
 class StubGitHubRepositoryRepository implements GitHubRepositoryRepository {
@@ -242,6 +254,7 @@ class StubGitHubRepositoryRepository implements GitHubRepositoryRepository {
 class StubCacheRepository implements CacheRepository {
   public readonly getCalls: string[] = [];
   public readonly setCalls: Array<{ key: string; value: unknown }> = [];
+  public closeCalls = 0;
   private readonly values = new Map<string, unknown>();
 
   constructor(entries: Array<[string, unknown]> = []) {
@@ -258,6 +271,10 @@ class StubCacheRepository implements CacheRepository {
   public async set<T>(key: string, value: T): Promise<void> {
     this.setCalls.push({ key, value });
     this.values.set(key, value);
+  }
+
+  public async close(): Promise<void> {
+    this.closeCalls += 1;
   }
 }
 

@@ -1,3 +1,4 @@
+import type { Server } from 'node:http';
 import express, { type Express, type Request, type Response } from 'express';
 
 import {
@@ -14,6 +15,8 @@ type AppDependencies = {
 
 export class App {
   private readonly dependencies: Required<AppDependencies>;
+  private server?: Server;
+  private isStopping = false;
 
   constructor(
     private readonly port: string | number = config.port,
@@ -27,12 +30,46 @@ export class App {
     };
   }
 
-  public start(): void {
+  public start(): Server {
     const app = this.createExpressApp();
 
-    app.listen(this.port, () => {
+    this.server = app.listen(this.port, () => {
       console.log(`Server running on http://localhost:${this.port}`);
     });
+    this.registerShutdownHandlers();
+
+    return this.server;
+  }
+
+  public async stop(signal = 'manual'): Promise<void> {
+    if (this.isStopping) {
+      return;
+    }
+
+    this.isStopping = true;
+    console.log(`Shutting down after ${signal}`);
+
+    await this.closeServer();
+    await this.dependencies.repositoryScoreController.close();
+  }
+
+  private async closeServer(): Promise<void> {
+    if (!this.server) {
+      return;
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      this.server?.close((error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve();
+      });
+    });
+
+    this.server = undefined;
   }
 
   public createExpressApp(): Express {
@@ -49,6 +86,19 @@ export class App {
     app.use(errorHandler.handle);
 
     return app;
+  }
+
+  private registerShutdownHandlers(): void {
+    for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+      process.once(signal, () => {
+        this.stop(signal)
+          .then(() => process.exit(0))
+          .catch((error) => {
+            console.error('Graceful shutdown failed', error);
+            process.exit(1);
+          });
+      });
+    }
   }
 }
 
