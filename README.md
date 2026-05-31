@@ -136,6 +136,12 @@ make install
 Installs Node dependencies with `npm install`.
 
 ```bash
+make audit
+```
+
+Runs `npm audit` and fails if npm reports security vulnerabilities.
+
+```bash
 make build
 ```
 
@@ -245,13 +251,13 @@ query above. It does not represent cold-cache GitHub API latency.
 Total requests: 2000
 HTTP 200 responses: 2000
 Failed virtual users: 0
-Request rate: 2000/sec
-Downloaded bytes: 7388000
-Mean response time: 0.7 ms
+Request rate: 1990/sec
+Downloaded bytes: 7266000
+Mean response time: 0.8 ms
 Median response time: 1 ms
 p95 response time: 2 ms
 p99 response time: 3 ms
-Max response time: 11 ms
+Max response time: 16 ms
 Total test time: 3 seconds
 ```
 

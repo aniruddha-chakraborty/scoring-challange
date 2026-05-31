@@ -27,6 +27,11 @@
     "tsx": "^4.16.2",
     "typescript": "^5.5.3"
   },
+  "overrides": {
+    "@ngneat/falso": {
+      "uuid": "^11.1.1"
+    }
+  },
   "engines": {
     "node": ">=20"
   }

@@ -4,12 +4,13 @@ REDIS_SERVICE := redis
 PERF_TARGET ?= http://localhost:3000
 SEARCH_URL := $(PERF_TARGET)/repositories?language=Go&createdAfter=2024-06-01&limit=10&offset=0
 
-.PHONY: help setup install build test coverage integration complete-integration performance-warmup performance complete-performance dev start up down restart clean
+.PHONY: help setup install audit build test coverage integration complete-integration performance-warmup performance complete-performance dev start up down restart clean
 
 help:
 	@echo "Available commands:"
 	@echo "  make setup       Install dependencies and build TypeScript"
 	@echo "  make install     Install npm dependencies"
+	@echo "  make audit       Run npm security audit"
 	@echo "  make build       Build TypeScript"
 	@echo "  make test        Run tests"
 	@echo "  make coverage    Run tests with coverage"
@@ -26,6 +27,9 @@ help:
 
 install:
 	npm install
+
+audit:
+	npm audit
 
 setup:
 	$(MAKE) install
