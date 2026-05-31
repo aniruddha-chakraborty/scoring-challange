@@ -68,13 +68,53 @@ The cached value is the full JSON response:
 }
 ```
 
+## Prerequisites
+
+The `Makefile` commands require the `make` command-line tool.
+
+On macOS, install the Xcode command line tools:
+
+```bash
+xcode-select --install
+```
+
+If you use Homebrew and want GNU Make specifically:
+
+```bash
+brew install make
+```
+
+On Debian or Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install make
+```
+
+On Fedora:
+
+```bash
+sudo dnf install make
+```
+
+On Arch Linux:
+
+```bash
+sudo pacman -S make
+```
+
+Verify the installation:
+
+```bash
+make --version
+```
+
 ## Run
 
 Local development:
 
 ```bash
-npm install
-npm run dev
+make dev
 ```
 
 Build for production:
@@ -193,6 +233,26 @@ else:
 
 ```bash
 make performance PERF_TARGET=http://localhost:4000
+```
+
+Latest local cached performance result from `make complete-performance`
+on 2026-05-31:
+
+This result measures the warmed Redis cache path for the repository search
+query above. It does not represent cold-cache GitHub API latency.
+
+```text
+Total requests: 2000
+HTTP 200 responses: 2000
+Failed virtual users: 0
+Request rate: 2000/sec
+Downloaded bytes: 7388000
+Mean response time: 0.7 ms
+Median response time: 1 ms
+p95 response time: 2 ms
+p99 response time: 3 ms
+Max response time: 11 ms
+Total test time: 3 seconds
 ```
 
 Available endpoints:
