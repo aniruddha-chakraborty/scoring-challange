@@ -18,10 +18,12 @@ type GitHubRepositoryOptions = {
   token?: string;
 };
 
+// Creates the configured GitHub repository client.
 export function createGitHubRepository(): GitHubRepositoryRepository {
   return new GitHubRestRepository();
 }
 
+// Fetches repositories from the GitHub REST search API.
 export class GitHubRestRepository implements GitHubRepositoryRepository {
   private readonly baseUrl: string;
   private readonly token?: string;
@@ -31,6 +33,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     this.token = options.token ?? config.githubToken;
   }
 
+  // Searches GitHub repositories using the requested criteria.
   public async searchRepositories(
     criteria: RepositorySearchCriteria
   ): Promise<GitHubRepository[]> {
@@ -58,6 +61,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     return body.items.map((item) => this.toRepository(item));
   }
 
+  // Builds the GitHub repository search URL and query parameters.
   private buildSearchUrl(criteria: RepositorySearchCriteria): string {
     const url = new URL('/search/repositories', this.baseUrl);
     const query = [
@@ -74,10 +78,12 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     return url.toString();
   }
 
+  // Converts API offset and limit values into GitHub page pagination.
   private toGitHubPage(criteria: RepositorySearchCriteria): number {
     return Math.floor(criteria.offset / criteria.limit) + 1;
   }
 
+  // Builds GitHub request headers, including authentication when configured.
   private buildHeaders(): HeadersInit {
     return {
       Accept: 'application/vnd.github+json',
@@ -86,6 +92,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     };
   }
 
+  // Parses the GitHub JSON response into the expected search response shape.
   private async parseSearchResponse(
     response: Response
   ): Promise<Partial<GitHubSearchResponse>> {
@@ -96,6 +103,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     }
   }
 
+  // Verifies that an upstream item contains the fields the service needs.
   private isRepositoryItem(value: unknown): value is GitHubSearchRepositoryItem {
     const item = value as Partial<GitHubSearchRepositoryItem>;
 
@@ -113,6 +121,7 @@ export class GitHubRestRepository implements GitHubRepositoryRepository {
     );
   }
 
+  // Maps a GitHub API item into the internal repository model.
   private toRepository(item: GitHubSearchRepositoryItem): GitHubRepository {
     return {
       id: item.id,

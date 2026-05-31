@@ -13,6 +13,7 @@ type AppDependencies = {
   errorHandler?: ErrorHandlerMiddleware;
 };
 
+// Wires the Express application, HTTP server lifecycle, and shutdown handling.
 export class App {
   private readonly dependencies: Required<AppDependencies>;
   private server?: Server;
@@ -30,6 +31,7 @@ export class App {
     };
   }
 
+  // Starts the HTTP server and registers process shutdown hooks.
   public start(): Server {
     const app = this.createExpressApp();
 
@@ -41,6 +43,7 @@ export class App {
     return this.server;
   }
 
+  // Stops accepting requests and closes application dependencies.
   public async stop(signal = 'manual'): Promise<void> {
     if (this.isStopping) {
       return;
@@ -53,6 +56,7 @@ export class App {
     await this.dependencies.repositoryScoreController.close();
   }
 
+  // Closes the active HTTP server if it has been started.
   private async closeServer(): Promise<void> {
     if (!this.server) {
       return;
@@ -72,6 +76,7 @@ export class App {
     this.server = undefined;
   }
 
+  // Creates the Express app with health, API, and error-handler routes.
   public createExpressApp(): Express {
     const app = express();
 
@@ -88,6 +93,7 @@ export class App {
     return app;
   }
 
+  // Registers signal handlers used by Docker, Kubernetes, and local terminals.
   private registerShutdownHandlers(): void {
     for (const signal of ['SIGTERM', 'SIGINT'] as const) {
       process.once(signal, () => {

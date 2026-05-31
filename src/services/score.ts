@@ -23,10 +23,12 @@ type PopularityWeights = {
   recency: number;
 };
 
+// Creates the score service with default GitHub and cache repositories.
 export function createRepositoryScoreService(): RepositoryScoreService {
   return new RepositoryScoreService();
 }
 
+// Orchestrates cache lookup, GitHub search, scoring, and response ordering.
 export class RepositoryScoreService {
   private readonly weights: PopularityWeights = {
     stars: 0.5,
@@ -40,6 +42,7 @@ export class RepositoryScoreService {
     private readonly cacheRepository: CacheRepository = createCacheRepository()
   ) {}
 
+  // Returns scored repositories for the requested search criteria.
   public async listScoredRepositories(
     criteria: RepositorySearchCriteria
   ): Promise<ScoredRepositoryResponse> {
@@ -68,10 +71,12 @@ export class RepositoryScoreService {
     return response;
   }
 
+  // Closes service dependencies that hold external resources.
   public async close(): Promise<void> {
     await this.cacheRepository.close?.();
   }
 
+  // Builds a stable cache key from normalized search criteria.
   private buildCacheKey(criteria: RepositorySearchCriteria): string {
     const params = new URLSearchParams({
       language: criteria.language.trim(),
@@ -83,6 +88,7 @@ export class RepositoryScoreService {
     return `?${params.toString()}`;
   }
 
+  // Checks whether the requested creation date is later than today.
   private isFutureDate(value: string, now = new Date()): boolean {
     const searchDate = new Date(`${value}T00:00:00.000Z`);
     const today = new Date(
@@ -92,6 +98,7 @@ export class RepositoryScoreService {
     return searchDate.getTime() > today.getTime();
   }
 
+  // Applies weighted popularity scoring and sorts repositories by score.
   private scoreRepositories(
     repositories: GitHubRepository[],
     scoredAt = new Date()

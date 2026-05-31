@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 import { HttpError } from '../utils/http-errors';
 
+// Converts application errors into consistent HTTP JSON responses.
 export class ErrorHandlerMiddleware {
   public handle = (
     error: Error,
@@ -25,6 +26,7 @@ export class ErrorHandlerMiddleware {
     });
   };
 
+  // Logs unexpected server errors with request context.
   private logInternalError(error: Error, req: Request): void {
     console.error('Unhandled error', {
       method: req.method,

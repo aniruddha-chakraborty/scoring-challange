@@ -13,10 +13,12 @@ export type RedisCacheRepositoryConfig = {
   ttlSeconds: number;
 };
 
+// Creates the configured cache repository implementation.
 export function createCacheRepository(): CacheRepository {
   return new RedisCacheRepository();
 }
 
+// Builds Redis cache configuration from environment-backed settings.
 export function createRedisCacheRepositoryConfig(): RedisCacheRepositoryConfig {
   const redisUrl = config.redisUrl;
 
@@ -30,6 +32,7 @@ export function createRedisCacheRepositoryConfig(): RedisCacheRepositoryConfig {
   };
 }
 
+// Stores and retrieves cached responses from Redis.
 export class RedisCacheRepository implements CacheRepository {
   private readonly client: ReturnType<typeof createClient>;
   private connectPromise?: Promise<void>;
@@ -50,6 +53,7 @@ export class RedisCacheRepository implements CacheRepository {
     });
   }
 
+  // Reads a cached JSON value by key.
   public async get<T>(key: string): Promise<T | null> {
     await this.connect();
     const value = await this.client.get(key);
@@ -61,6 +65,7 @@ export class RedisCacheRepository implements CacheRepository {
     return JSON.parse(value) as T;
   }
 
+  // Stores a JSON value in Redis with the configured TTL.
   public async set<T>(key: string, value: T): Promise<void> {
     await this.connect();
     const payload = JSON.stringify(value);
@@ -68,11 +73,13 @@ export class RedisCacheRepository implements CacheRepository {
     await this.client.set(key, payload, { EX: this.config.ttlSeconds });
   }
 
+  // Deletes a cache entry by key.
   public async delete(key: string): Promise<void> {
     await this.connect();
     await this.client.del(key);
   }
 
+  // Closes the Redis client connection.
   public async close(): Promise<void> {
     if (this.client.isOpen) {
       await this.client.quit();
@@ -81,6 +88,7 @@ export class RedisCacheRepository implements CacheRepository {
     this.connectPromise = undefined;
   }
 
+  // Opens the Redis connection once and reuses the in-flight connection promise.
   private async connect(): Promise<void> {
     if (this.client.isOpen) {
       return;

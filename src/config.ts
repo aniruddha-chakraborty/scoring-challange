@@ -2,6 +2,7 @@ import { config as loadEnv } from 'dotenv';
 
 loadEnv({ quiet: true });
 
+// Exposes environment-backed runtime configuration.
 export const config = {
   get port(): string | number {
     return process.env.PORT || 3000;

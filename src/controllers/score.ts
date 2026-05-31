@@ -8,10 +8,12 @@ import {
 import { isIsoDate } from '../utils/helpers.utils';
 import { BadRequestError } from '../utils/http-errors';
 
+// Creates the controller with its default service dependency.
 export function createRepositoryScoreController(): RepositoryScoreController {
   return new RepositoryScoreController();
 }
 
+// Handles repository score HTTP routes and request validation.
 export class RepositoryScoreController {
   public readonly router = Router();
 
@@ -21,14 +23,17 @@ export class RepositoryScoreController {
     this.registerRoutes();
   }
 
+  // Registers the repository score routes on the controller router.
   private registerRoutes(): void {
     this.router.get('/', this.listScoredRepositories);
   }
 
+  // Closes dependencies owned by the controller.
   public async close(): Promise<void> {
     await this.repositoryScoreService.close();
   }
 
+  // Parses, validates, and serves repository score search requests.
   private listScoredRepositories = async (
     req: Request,
     res: Response,
@@ -46,6 +51,7 @@ export class RepositoryScoreController {
     }
   };
 
+  // Converts raw query parameters into search criteria.
   private createSearchCriteria(req: Request): RepositorySearchCriteria {
     return {
       language: String(req.query.language ?? ''),
@@ -55,6 +61,7 @@ export class RepositoryScoreController {
     };
   }
 
+  // Validates user supplied repository search criteria.
   private validateCriteria(criteria: RepositorySearchCriteria): void {
     if (!criteria.language.trim()) {
       throw new BadRequestError('Language is required');
