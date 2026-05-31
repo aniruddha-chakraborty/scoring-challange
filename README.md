@@ -159,6 +159,11 @@ Render the chart locally:
 helm template ranking-service ./charts/ranking-service
 ```
 
+## CI/CD
+
+GitHub Actions runs security audit, unit tests, coverage, integration tests,
+performance tests, and Helm chart linting on pushes and pull requests.
+
 ## Make Commands
 
 The project includes a `Makefile` as a shortcut layer over common npm and
